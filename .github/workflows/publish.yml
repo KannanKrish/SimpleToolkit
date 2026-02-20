@@ -4,8 +4,8 @@ name: publish
 on:
   workflow_dispatch:
     inputs:
-      pack_core:
-        description: "Pack SimpleToolkit.Core"
+      pack_simplebutton:
+        description: "Pack SimpleToolkit.SimpleButton"
         required: true
         type: boolean
         default: true
@@ -14,13 +14,23 @@ on:
         required: true
         type: boolean
         default: true
-      push_core:
-        description: "Push SimpleToolkit.Core"
+      pack_helpers:
+        description: "Pack SimpleToolkit.Helpers"
+        required: true
+        type: boolean
+        default: true
+      push_simplebutton:
+        description: "Push SimpleToolkit.SimpleButton"
         required: false
         type: boolean
         default: false
       push_simpleshell:
         description: "Push SimpleToolkit.SimpleShell"
+        required: false
+        type: boolean
+        default: false
+      push_helpers:
+        description: "Push SimpleToolkit.Helpers"
         required: false
         type: boolean
         default: false
@@ -30,8 +40,9 @@ env:
   DOTNET_CLI_TELEMETRY_OPTOUT: true
   DOTNET_NOLOGO: true
   NuGetDirectory: .\nuget
-  CoreNuGetDirectory: .\nuget\Core
+  SimpleButtonNuGetDirectory: .\nuget\SimpleButton
   SimpleShellNuGetDirectory: .\nuget\SimpleShell
+  HelpersNuGetDirectory: .\nuget\Helpers
 
 defaults:
   run:
@@ -50,13 +61,17 @@ jobs:
       - name: Install MAUI Workload
         run: dotnet workload install maui --ignore-failed-sources
 
-      - name: Pack SimpleToolkit.Core
-        if: ${{ inputs.pack_core || inputs.push_core }}
-        run: dotnet pack .\src\SimpleToolkit.Core\SimpleToolkit.Core.csproj --configuration Release --output ${{ env.CoreNuGetDirectory }}
+      - name: Pack SimpleToolkit.SimpleButton
+        if: ${{ inputs.pack_simplebutton || inputs.push_simplebutton }}
+        run: dotnet pack .\src\SimpleToolkit.SimpleButton\SimpleToolkit.SimpleButton.csproj --configuration Release --output ${{ env.SimpleButtonNuGetDirectory }}
 
       - name: Pack SimpleToolkit.SimpleShell
         if: ${{ inputs.pack_simpleshell || inputs.push_simpleshell }}
         run: dotnet pack .\src\SimpleToolkit.SimpleShell\SimpleToolkit.SimpleShell.csproj --configuration Release --output ${{ env.SimpleShellNuGetDirectory }}
+
+      - name: Pack SimpleToolkit.Helpers
+        if: ${{ inputs.pack_helpers || inputs.push_helpers }}
+        run: dotnet pack .\src\SimpleToolkit.Helpers\SimpleToolkit.Helpers.csproj --configuration Release --output ${{ env.HelpersNuGetDirectory }}
 
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4
@@ -66,10 +81,14 @@ jobs:
           retention-days: 90
           path: ${{ env.NuGetDirectory }}\**\*.nupkg
 
-      - name: Push SimpleToolkit.Core
-        if: ${{ inputs.pack_core && inputs.push_core }}
-        run: dotnet nuget push "${{ env.CoreNuGetDirectory }}\*.nupkg" --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json
+      - name: Push SimpleToolkit.SimpleButton
+        if: ${{ inputs.pack_simplebutton && inputs.push_simplebutton }}
+        run: dotnet nuget push "${{ env.SimpleButtonNuGetDirectory }}\*.nupkg" --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json
 
       - name: Push SimpleToolkit.SimpleShell
         if: ${{ inputs.pack_simpleshell && inputs.push_simpleshell }}
         run: dotnet nuget push "${{ env.SimpleShellNuGetDirectory }}\*.nupkg" --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json
+
+      - name: Push SimpleToolkit.Helpers
+        if: ${{ inputs.pack_helpers && inputs.push_helpers }}
+        run: dotnet nuget push "${{ env.HelpersNuGetDirectory }}\*.nupkg" --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json
