@@ -15,7 +15,7 @@
 <br />
 
 > [!CAUTION]
-> Long-term support is not guaranteed. However, this repository is released under the MIT license, so you can always fork the repository and build the packages yourself.
+> Long-term support is not guaranteed for this project. Since this repository is released under the MIT license, you are allowed to fork it and build the packages for your own use. However, I would appreciate it if you **did not redistribute it as your own work** and, at a minimum, maintained the original copyright notice as required by the MIT license.
 
 ## 📦 NuGet Packages
 
